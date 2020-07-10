@@ -1,25 +1,41 @@
 const { Schema, model } = require('mongoose');
+const moment = require('moment');
 
-const PizzaSchema = new Schema({
-    pizzaName: {
-      type: String
+const PizzaSchema = new Schema(
+    {
+      pizzaName: {
+        type: String
+      },
+      createdBy: {
+        type: String
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+        get: (createdAtVal) => moment(createdAtVal).format('MMM DD, YYYY [at] hh:mm a')
+      },
+      size: {
+        type: String,
+        default: 'Large'
+      },
+      toppings: [],
+      comments: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'Comment'
+        }
+      ]
     },
-    createdBy: {
-      type: String
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    },
-    size: {
-      type: String,
-      default: 'Large'
-    },
-    toppings: []
-  });
+    {
+        toJSON: {
+            virtuals: true,
+            getters: true
+        },
+        id: false
+    }
+);
 
-  // create the Pizza model using the PizzaSchema
-const Pizza = model('Pizza', PizzaSchema);
+const Pizza = require('./Pizza');
+const Comment = require('./Comment');
 
-// export the Pizza model
-module.exports = Pizza;
+module.exports = { Pizza, Comment };
