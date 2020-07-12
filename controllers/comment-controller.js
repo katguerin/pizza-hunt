@@ -1,33 +1,60 @@
-const { Comment, Pizza } = require('../models');
+const { Comment, Pizza } = require("../models");
 
 const commentController = {
-    // add comment to pizza
-    addComment({ params, body }, res) {
-        console.log(body);
-        Comment.create(body)
-          .then(({ _id }) => {
-            return Pizza.findOneAndUpdate(
-              { _id: params.pizzaId },
-              { $push: { comments: _id } },
-              { new: true }
-            );
-          })
-          .then(dbPizzaData => {
-            if (!dbPizzaData) {
-              res.status(404).json({ message: 'No pizza found with this id!' });
-              return;
-            }
-            res.json(dbPizzaData);
-          })
-          .catch(err => res.json(err));
-      },
+  // add comment to pizza
+  addComment({ params, body }, res) {
+    console.log(body);
+    Comment.create(body)
+      .then(({ _id }) => {
+        return Pizza.findOneAndUpdate(
+          { _id: params.pizzaId },
+          { $push: { comments: _id } },
+          { new: true }
+        );
+      })
+      .then((dbPizzaData) => {
+        if (!dbPizzaData) {
+          res.status(404).json({ message: "No pizza found with this id!" });
+          return;
+        }
+        res.json(dbPizzaData);
+      })
+      .catch((err) => res.json(err));
+  },
+
+  addReply({ params, body }, res) {
+    Comment.findOneAndUpdate(
+      { _id: params.commentId },
+      { $push: { replies: body } },
+      { new: true }
+    )
+      .then((dbPizzaData) => {
+        if (!dbPizzaData) {
+          res.status(404).json({ message: "No pizza found with this id!" });
+          return;
+        }
+        res.json(dbPizzaData);
+      })
+      .catch((err) => res.json(err));
+  },
+
+  // remove reply
+  removeReply({ params }, res) {
+    Comment.findOneAndUpdate(
+      { _id: params.commentId },
+      { $pull: { replies: { replyId: params.replyId } } },
+      { new: true }
+    )
+      .then((dbPizzaData) => res.json(dbPizzaData))
+      .catch((err) => res.json(err));
+  },
 
   // remove comment
   removeComment({ params }, res) {
     Comment.findOneAndDelete({ _id: params.commentId })
-      .then(deletedComment => {
+      .then((deletedComment) => {
         if (!deletedComment) {
-          return res.status(404).json({ message: 'No comment with this id!' });
+          return res.status(404).json({ message: "No comment with this id!" });
         }
         return Pizza.findOneAndUpdate(
           { _id: params.pizzaId },
@@ -35,29 +62,32 @@ const commentController = {
           { new: true }
         );
       })
-      .then(dbPizzaData => {
+      .then((dbPizzaData) => {
         if (!dbPizzaData) {
-          res.status(404).json({ message: 'No pizza found with this id!' });
+          res.status(404).json({ message: "No pizza found with this id!" });
           return;
         }
         res.json(dbPizzaData);
       })
-      .catch(err => res.json(err));
-  }
-}
+      .catch((err) => res.json(err));
+  },
+};
 
-const router = require('express').Router();
-const { addComment, removeComment } = require('../../controllers/comment-controller');
-const commentRoutes = require('./comment-routes');
-const pizzaRoutes = require('./pizza-routes');
+const router = require("express").Router();
+const {
+  addComment,
+  removeComment,
+} = require("../../controllers/comment-controller");
+const commentRoutes = require("./comment-routes");
+const pizzaRoutes = require("./pizza-routes");
 
-router.use('/comments', commentRoutes);
-router.use('/pizzas', pizzaRoutes);
+router.use("/comments", commentRoutes);
+router.use("/pizzas", pizzaRoutes);
 
 // /api/comments/<pizzaId>
-router.route('/:pizzaId').post(addComment);
+router.route("/:pizzaId").post(addComment);
 
 // /api/comments/<pizzaId>/<commentId>
-router.route('/:pizzaId/:commentId').delete(removeComment);
+router.route("/:pizzaId/:commentId").delete(removeComment);
 
 module.exports = router;
