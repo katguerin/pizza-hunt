@@ -5,13 +5,13 @@ const PizzaSchema = new Schema(
   {
     pizzaName: {
       type: String,
-      required: 'You need to provide a pizza name!',
-      trim: true
+      required: "You need to provide a pizza name!",
+      trim: true,
     },
     createdBy: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     createdAt: {
       type: Date,
@@ -22,7 +22,7 @@ const PizzaSchema = new Schema(
     size: {
       type: String,
       required: true,
-      enum: ['personal', 'small', 'medium', 'large', 'extra large'],
+      enum: ["personal", "small", "medium", "large", "extra large"],
       default: "Large",
     },
     toppings: [],
@@ -49,7 +49,8 @@ PizzaSchema.virtual("commentCount").get(function () {
   );
 });
 
-const Pizza = require("./Pizza");
-const Comment = require("./Comment");
+// const Pizza = require("./Pizza");
+// const Comment = require("./Comment");
+const Pizza = model("Pizza", PizzaSchema);
 
-module.exports = { Pizza, Comment };
+module.exports =  Pizza ;

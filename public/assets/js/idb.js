@@ -54,9 +54,12 @@ function uploadPizza() {
   getAll.onsuccess = function () {
     // if there was data in indexedDb's store, let's send it to the api server
     if (getAll.result.length > 0) {
+        console.log(getAll.result);
+        const body = getAll.result.map(res => ({ ...res, size: res.size.toLowerCase() }))
+        console.log(body);
       fetch("/api/pizzas", {
         method: "POST",
-        body: JSON.stringify(getAll.result),
+        body: JSON.stringify(body),
         headers: {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "application/json",
